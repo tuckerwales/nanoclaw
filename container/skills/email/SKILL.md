@@ -30,7 +30,7 @@ mcp__nanoclaw__send_email(to="alice@example.com", subject="Hello", body="Hi Alic
 
 To **reply** to a received email, use `mcp__nanoclaw__send_message` — the email channel automatically threads the reply back to the original sender.
 
-**Always show the draft (to, subject, body) and ask for confirmation before calling `send_email`, unless the user explicitly said to send it without confirming (e.g. "just send it", "send without asking").**
+**Always show the draft (to, subject, body) and ask for confirmation before calling `send_email`. Saying "send it to X" is NOT sufficient to skip confirmation — you must still show the draft and wait for approval. Only skip confirmation if the user explicitly says something like "send without asking", "just send it", or "don't ask for confirmation".**
 
 ## Notes
 
