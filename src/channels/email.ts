@@ -408,6 +408,10 @@ export class EmailChannel implements Channel {
     this.connected = false;
   }
 
+  async syncInbox(): Promise<void> {
+    await this.checkEmails();
+  }
+
   async sendMessage(jid: string, text: string): Promise<void> {
     // jid format: "email:<address>"
     const toAddr = jid.replace(/^email:/, '');

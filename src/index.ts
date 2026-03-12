@@ -199,6 +199,24 @@ async function processGroupMessages(chatJid: string): Promise<boolean> {
     statusTracker.markThinking(msg.id);
   }
 
+  // If messages mention email, sync the inbox before spawning the container
+  // so the mounted snapshot is fresh when the agent reads it.
+  const emailKeywords = /\bemail|inbox|unread|subject|from:|sent |received\b/i;
+  const mentionsEmail = missedMessages.some((m) =>
+    emailKeywords.test(m.content),
+  );
+  if (mentionsEmail) {
+    await Promise.all(
+      channels
+        .filter((ch) => ch.syncInbox)
+        .map((ch) =>
+          ch.syncInbox!().catch((err) =>
+            logger.warn({ err }, 'Email inbox sync failed'),
+          ),
+        ),
+    );
+  }
+
   const prompt = formatMessages(missedMessages, TIMEZONE);
   const imageAttachments = parseImageReferences(missedMessages);
 
@@ -483,7 +501,12 @@ async function startMessageLoop(): Promise<void> {
           // Mark each new user message as received
           for (const msg of groupMessages) {
             if (!msg.is_from_me && !msg.is_bot_message) {
-              statusTracker.markReceived(msg.id, chatJid, false, msg.sender || undefined);
+              statusTracker.markReceived(
+                msg.id,
+                chatJid,
+                false,
+                msg.sender || undefined,
+              );
             }
           }
 

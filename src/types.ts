@@ -104,6 +104,8 @@ export interface Channel {
     emoji: string,
   ): Promise<void>;
   reactToLatestMessage?(chatJid: string, emoji: string): Promise<void>;
+  // Optional: force an inbox sync before agent runs (e.g. email channel)
+  syncInbox?(): Promise<void>;
 }
 
 // Callback type that channels use to deliver inbound messages
