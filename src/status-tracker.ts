@@ -27,12 +27,14 @@ interface MessageKey {
   id: string;
   remoteJid: string;
   fromMe?: boolean;
+  participant?: string;
 }
 
 interface TrackedMessage {
   messageId: string;
   chatJid: string;
   fromMe: boolean;
+  participant?: string;
   state: number;
   terminal: 'done' | 'failed' | null;
   sendChain: Promise<void>;
@@ -43,6 +45,7 @@ interface PersistedEntry {
   messageId: string;
   chatJid: string;
   fromMe: boolean;
+  participant?: string;
   state: number;
   terminal: 'done' | 'failed' | null;
   trackedAt: number;
@@ -70,7 +73,7 @@ export class StatusTracker {
     this.persistPath = path.join(DATA_DIR, 'status-tracker.json');
   }
 
-  markReceived(messageId: string, chatJid: string, fromMe: boolean): boolean {
+  markReceived(messageId: string, chatJid: string, fromMe: boolean, participant?: string): boolean {
     if (!this.deps.isMainGroup(chatJid)) return false;
     if (this.tracked.has(messageId)) return false;
 
@@ -78,6 +81,7 @@ export class StatusTracker {
       messageId,
       chatJid,
       fromMe,
+      participant,
       state: StatusState.RECEIVED,
       terminal: null,
       sendChain: Promise.resolve(),
@@ -172,6 +176,7 @@ export class StatusTracker {
         messageId: entry.messageId,
         chatJid: entry.chatJid,
         fromMe: entry.fromMe,
+        participant: entry.participant,
         state: entry.state,
         terminal: null,
         sendChain: Promise.resolve(),
@@ -294,6 +299,7 @@ export class StatusTracker {
       id: msg.messageId,
       remoteJid: msg.chatJid,
       fromMe: msg.fromMe,
+      ...(msg.participant && { participant: msg.participant }),
     };
     msg.sendChain = msg.sendChain.then(async () => {
       for (let attempt = 1; attempt <= REACTION_MAX_RETRIES; attempt++) {
@@ -341,6 +347,7 @@ export class StatusTracker {
           messageId: msg.messageId,
           chatJid: msg.chatJid,
           fromMe: msg.fromMe,
+          participant: msg.participant,
           state: msg.state,
           terminal: msg.terminal,
           trackedAt: msg.trackedAt,

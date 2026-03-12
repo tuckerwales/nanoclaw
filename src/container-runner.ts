@@ -177,7 +177,12 @@ function buildVolumeMounts(
   });
 
   // Email inbox snapshot (read-only — written by the email channel on each poll)
-  const emailInboxResolved = path.resolve(DATA_DIR, '..', 'store', 'email-inbox.json');
+  const emailInboxResolved = path.resolve(
+    DATA_DIR,
+    '..',
+    'store',
+    'email-inbox.json',
+  );
   if (fs.existsSync(emailInboxResolved)) {
     mounts.push({
       hostPath: emailInboxResolved,

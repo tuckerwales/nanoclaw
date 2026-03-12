@@ -192,7 +192,7 @@ async function processGroupMessages(chatJid: string): Promise<boolean> {
     (m) => !m.is_from_me && !m.is_bot_message,
   );
   for (const msg of userMessages) {
-    statusTracker.markReceived(msg.id, chatJid, false);
+    statusTracker.markReceived(msg.id, chatJid, false, msg.sender || undefined);
   }
   // Mark as thinking (container is spawning)
   for (const msg of userMessages) {
@@ -483,7 +483,7 @@ async function startMessageLoop(): Promise<void> {
           // Mark each new user message as received
           for (const msg of groupMessages) {
             if (!msg.is_from_me && !msg.is_bot_message) {
-              statusTracker.markReceived(msg.id, chatJid, false);
+              statusTracker.markReceived(msg.id, chatJid, false, msg.sender || undefined);
             }
           }
 
