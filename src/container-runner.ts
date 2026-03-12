@@ -206,7 +206,10 @@ function buildVolumeMounts(
     group.folder,
     'agent-runner-src',
   );
-  if (!fs.existsSync(groupAgentRunnerDir) && fs.existsSync(agentRunnerSrc)) {
+  if (fs.existsSync(agentRunnerSrc)) {
+    // Always sync host source files so updates to ipc-mcp-stdio.ts etc. propagate.
+    // Uses overwrite:true so existing per-group customisations (extra files) are preserved
+    // but host files always win.
     fs.cpSync(agentRunnerSrc, groupAgentRunnerDir, { recursive: true });
   }
   mounts.push({
