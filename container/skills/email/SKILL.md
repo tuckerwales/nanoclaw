@@ -30,6 +30,8 @@ mcp__nanoclaw__send_email(to="alice@example.com", subject="Hello", body="Hi Alic
 
 To **reply** to a received email, use `mcp__nanoclaw__send_message` — the email channel automatically threads the reply back to the original sender.
 
+**Always show the draft (to, subject, body) and ask for confirmation before calling `send_email`, unless the user explicitly said to send it without confirming (e.g. "just send it", "send without asking").**
+
 ## Notes
 
 - The inbox file is updated every 30 seconds and also synced fresh when an email-related question is detected
