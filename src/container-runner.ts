@@ -42,7 +42,6 @@ export interface ContainerInput {
   isScheduledTask?: boolean;
   assistantName?: string;
   imageAttachments?: Array<{ relativePath: string; mediaType: string }>;
-
 }
 
 export interface ContainerOutput {
@@ -176,6 +175,16 @@ function buildVolumeMounts(
     containerPath: '/workspace/ipc',
     readonly: false,
   });
+
+  // Email inbox snapshot (read-only — written by the email channel on each poll)
+  const emailInboxResolved = path.resolve(DATA_DIR, '..', 'store', 'email-inbox.json');
+  if (fs.existsSync(emailInboxResolved)) {
+    mounts.push({
+      hostPath: emailInboxResolved,
+      containerPath: '/workspace/ipc/inbox.json',
+      readonly: true,
+    });
+  }
 
   // Copy agent-runner source into a per-group writable location so agents
   // can customize it (add tools, change behavior) without affecting other
