@@ -435,6 +435,37 @@ Use available_groups.json to find the JID for a group. The folder name must be c
   },
 );
 
+server.tool(
+  'send_email',
+  'Send an email to any address. Use when the user asks you to email someone. For replies to received emails, prefer send_message which automatically threads the reply.',
+  {
+    to: z.string().describe('Recipient email address (e.g. "alice@example.com")'),
+    subject: z.string().describe('Email subject line'),
+    body: z.string().describe('Email body (plain text)'),
+  },
+  async (args) => {
+    const data = {
+      type: 'send_email',
+      to: args.to,
+      subject: args.subject,
+      body: args.body,
+      groupFolder,
+      timestamp: new Date().toISOString(),
+    };
+
+    writeIpcFile(MESSAGES_DIR, data);
+
+    return {
+      content: [
+        {
+          type: 'text' as const,
+          text: `Email queued to ${args.to} with subject "${args.subject}".`,
+        },
+      ],
+    };
+  },
+);
+
 // Start the stdio transport
 const transport = new StdioServerTransport();
 await server.connect(transport);

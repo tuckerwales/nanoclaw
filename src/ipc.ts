@@ -17,6 +17,7 @@ export interface IpcDeps {
     emoji: string,
     messageId?: string,
   ) => Promise<void>;
+  sendEmail?: (to: string, subject: string, body: string) => Promise<void>;
   registeredGroups: () => Record<string, RegisteredGroup>;
   registerGroup: (jid: string, group: RegisteredGroup) => void;
   syncGroups: (force: boolean) => Promise<void>;
@@ -136,6 +137,32 @@ export function startIpcWatcher(deps: IpcDeps): void {
                   logger.warn(
                     { chatJid: data.chatJid, sourceGroup },
                     'Unauthorized IPC reaction attempt blocked',
+                  );
+                }
+              } else if (
+                data.type === 'send_email' &&
+                data.to &&
+                data.subject &&
+                data.body &&
+                deps.sendEmail
+              ) {
+                if (isMain) {
+                  try {
+                    await deps.sendEmail(data.to, data.subject, data.body);
+                    logger.info(
+                      { to: data.to, subject: data.subject, sourceGroup },
+                      'IPC email sent',
+                    );
+                  } catch (err) {
+                    logger.error(
+                      { to: data.to, subject: data.subject, sourceGroup, err },
+                      'IPC email failed',
+                    );
+                  }
+                } else {
+                  logger.warn(
+                    { to: data.to, sourceGroup },
+                    'Unauthorized IPC send_email attempt blocked (main group only)',
                   );
                 }
               }

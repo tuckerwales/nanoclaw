@@ -720,6 +720,12 @@ async function main(): Promise<void> {
     writeGroupsSnapshot: (gf, im, ag, rj) =>
       writeGroupsSnapshot(gf, im, ag, rj),
     statusHeartbeat: () => statusTracker.heartbeatCheck(),
+    sendEmail: async (to, subject, body) => {
+      const emailChannel = channels.find((ch) => ch.sendEmail);
+      if (!emailChannel?.sendEmail)
+        throw new Error('No email channel available');
+      await emailChannel.sendEmail(to, subject, body);
+    },
   });
   await statusTracker.recover();
   queue.setProcessMessagesFn(processGroupMessages);

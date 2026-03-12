@@ -412,6 +412,19 @@ export class EmailChannel implements Channel {
     await this.checkEmails();
   }
 
+  async sendEmail(to: string, subject: string, body: string): Promise<void> {
+    const transport = await getSmtpTransport(this.cfg.smtp);
+    try {
+      const from = this.cfg.fromName
+        ? `"${this.cfg.fromName}" <${this.cfg.fromAddress}>`
+        : this.cfg.fromAddress;
+      await transport.sendMail({ from, to, subject, text: body, html: textToHtml(body) });
+      logger.info(`[email] Sent email to ${to}: ${subject}`);
+    } finally {
+      releaseSmtpTransport(this.cfg.smtp);
+    }
+  }
+
   async sendMessage(jid: string, text: string): Promise<void> {
     // jid format: "email:<address>"
     const toAddr = jid.replace(/^email:/, '');

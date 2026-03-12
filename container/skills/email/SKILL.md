@@ -1,7 +1,7 @@
 ---
 name: email
-description: Read the email inbox. Use when the user asks to check, read, or summarise emails. The inbox is available as a JSON file updated on each poll cycle.
-allowed-tools: Bash(cat:*)
+description: Read the email inbox and send emails. Use when the user asks to check, read, summarise, reply to, or send emails.
+allowed-tools: Bash(cat:*), mcp__nanoclaw__send_email
 ---
 
 # Reading Email
@@ -20,16 +20,17 @@ Each entry has:
 - `body` — email body (quoted replies stripped)
 - `timestamp` — ISO 8601 timestamp
 
-## Example: summarise latest email
+## Sending Email
 
-```bash
-cat /workspace/ipc/inbox.json
+Use `mcp__nanoclaw__send_email` to send a new email to any address:
+
+```
+mcp__nanoclaw__send_email(to="alice@example.com", subject="Hello", body="Hi Alice, ...")
 ```
 
-Parse the first entry (index 0) — that's the most recent email.
+To **reply** to a received email, use `mcp__nanoclaw__send_message` — the email channel automatically threads the reply back to the original sender.
 
 ## Notes
 
-- The file is updated every 30 seconds when new mail arrives
+- The inbox file is updated every 30 seconds and also synced fresh when an email-related question is detected
 - If the file doesn't exist, no emails have been received yet since startup
-- To **reply** to an email, use `mcp__nanoclaw__send_message` — the email channel will send it back to the sender via SMTP automatically
